@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Space Explorer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #0a0a23;
+            color: white;
+            margin: 0;
+            padding: 0;
+        }
+        #container {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+        }
+        input, button {
+            padding: 12px;
+            font-size: 16px;
+            margin-top: 10px;
+            width: 100%;
+            max-width: 300px;
+            border: none;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #apod-img, #apod-video {
+            max-width: 100%;
+            height: auto;
+            margin-top: 20px;
+            display: none; /* Hide until data loads */
+            border-radius: 10px;
+        }
+        #apod-video {
+            width: 100%;
+            height: 315px;
+        }
+        #loading {
+            display: none;
+            font-size: 18px;
+            color: yellow;
+        }
+        #error {
+            color: red;
+            display: none;
+        }
+
+        /* 🌟 Responsive Design */
+        @media (max-width: 600px) {
+            #container {
+                padding: 15px;
+            }
+            input, button {
+                width: 90%;
+                font-size: 14px;
+            }
+            #apod-video {
+                height: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <h1>Space Explorer 🚀</h1>
+        <p>Discover NASA's Astronomy Picture of the Day</p>
+        <input type="date" id="date-picker">
+        <button onclick="fetchAPOD()">Get Image</button>
+        <p id="loading">Loading...</p>
+        <p id="error"></p>
+        <h2 id="title"></h2>
+        <img id="apod-img" src="" alt="Astronomy Picture of the Day">
+        <iframe id="apod-video" src="" frameborder="0" allowfullscreen></iframe>
+        <p id="explanation"></p>
+    </div>
+    
+    <script>
+        const apiKey = 'vMfebviAy73ljAjgWmfFtGmN3J1vgirz1j5w8Eiw'; 
+        
+        async function fetchAPOD() {
+            const date = document.getElementById('date-picker').value;
+            const errorElement = document.getElementById('error');
+            const loadingElement = document.getElementById('loading');
+            const imgElement = document.getElementById('apod-img');
+            const videoElement = document.getElementById('apod-video');
+
+            errorElement.style.display = "none"; // Hide error message
+            loadingElement.style.display = "block"; // Show loading message
+
+            if (!date) {
+                errorElement.textContent = "Please select a date!";
+                errorElement.style.display = "block";
+                loadingElement.style.display = "none";
+                return;
+            }
+
+            const url = `https://api.nasa.gov/planetary/apod?api_key=${apiKey}&date=${date}`;
+            
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                document.getElementById('title').textContent = data.title;
+                document.getElementById('explanation').textContent = data.explanation;
+
+                if (data.media_type === "image") {
+                    imgElement.src = data.url;
+                    imgElement.style.display = "block";
+                    videoElement.style.display = "none";
+                } else if (data.media_type === "video") {
+                    videoElement.src = data.url;
+                    videoElement.style.display = "block";
+                    imgElement.style.display = "none";
+                }
+
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                errorElement.textContent = "Failed to load data. Try again!";
+                errorElement.style.display = "block";
+            } finally {
+                loadingElement.style.display = "none";
+            }
+        }
+    </script>
+</body>
+</html>
+
